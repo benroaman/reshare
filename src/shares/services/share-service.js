@@ -1,26 +1,8 @@
-app.factory('shareService', ['$http', '$q', '$log', function($http, $q, $log) {
-  // My $http promise then and catch always
-  // does the same thing, so I'll put the
-  // processing of it here. What you probably
-  // want to do instead is create a convenience object
-  // that makes $http calls for you in a standard
-  // way, handling post, put, delete, etc
-  function get(url) {
-    return processAjaxPromise($http.get(url));
-  }
-
-  function processAjaxPromise(p) {
-    return p.then(function (result) {
-      return result.data;
-    })
-    .catch(function (error) {
-      $log.log(error);
-    });
-  }
+app.factory('shareService', ['serviceService', '$http', '$q', '$log', function(serviceService, $http, $q, $log) {
 
   return {
     list: function () {
-      return get('/api/res');
+      return serviceService.get('/api/res');
     },
 
     getById: function (resId) {
@@ -28,26 +10,26 @@ app.factory('shareService', ['$http', '$q', '$log', function($http, $q, $log) {
         throw new Error('getById requires a resource id');
       }
 
-      return get('/api/res/' + resId);
+      return serviceService.get('/api/res/' + resId);
     },
 
     addShare: function (res) {
-      return processAjaxPromise($http.post('/api/res', res));
+      return serviceService.processAjaxPromise($http.post('/api/res', res));
     },
 
     upVote: function (resId) {
       var url = 'api/res/' + resId + '/votes';
-      return processAjaxPromise($http.post(url, { vote: 1 }));
+      return serviceService.processAjaxPromise($http.post(url, { vote: 1 }));
     },
 
     downVote: function (resId) {
       var url = 'api/res/' + resId + '/votes';
-      return processAjaxPromise($http.post(url, { vote: -1 }));
+      return serviceService.processAjaxPromise($http.post(url, { vote: -1 }));
     },
 
     unVote: function (resId) {
       var url = 'api/res/' + resId + '/votes';
-      return processAjaxPromise($http.post(url, { vote: 0 }));
+      return serviceService.processAjaxPromise($http.post(url, { vote: 0 }));
     }
   };
 }]);

@@ -6,3 +6,15 @@
 <p>
   Id: {{vm.user._id}}
 </p>
+
+<ul>
+  <li class="share-listing" ng-repeat="share in vm.shares | orderBy: 'upvotes': reverse=true">
+    <a class="share-title" target="_blank" href="{{share.url}}">{{share.title}}</a>
+    <p class="share-description">{{share.description}}</p>
+    <span class="share-creator">posted by: <a href="#/users/{{share.userId}}">{{share.userId}}</a></span>
+    <span class="score">rating: {{share.upvotes - share.downvotes}}</span>
+    <span class="comments">comments: <a>TODO: show number of comments</a></span>
+    <p class="share-time">{{share.timeString}}</p>
+    <button class="deleter" ng-click="vm.deleteShare(share)">X</button>
+  </li>
+</ul>

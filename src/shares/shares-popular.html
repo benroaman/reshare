@@ -5,15 +5,17 @@
 <h1 class="page-header">Popular Shares</h1>
 
 <ul>
-  <li ng-repeat="share in vm.shares | orderBy: 'upvotes': reverse=true">
+  <li class="share-listing" ng-repeat="share in vm.shares | orderBy: 'upvotes': reverse=true">
     <a class="share-title" target="_blank" href="{{share.url}}">{{share.title}}</a>
     <p class="share-description">{{share.description}}</p>
+    <span class="share-creator">posted by: <a href="#/users/{{share.userId}}">{{share.userId}}</a></span>
+    <span class="score">rating: {{share.upvotes - share.downvotes}}</span>
+    <span class="comments">comments: <a>TODO: show number of comments</a></span>
     <p class="share-time">{{share.timeString}}</p>
-    <a class="share-creator" href="#/users/{{share.userId}}">{{share.userId}}</a>
-    <button ng-click="vm.upVote(share._id)" class="upvote">/\</button>
-    <button ng-click="vm.downVote(share._id)" class="downvote">\/</button>
-    <button ng-click="vm.unVote(share._id)" class="unvote">?</button>
-    <button class="flagger">flag post</button>
-    <p class="score">score: {{share.upvotes - share.downvotes}}</p>
+    <button ng-click="vm.upVote(share._id)" class="upvote" title="upvote">b</button>
+    <button ng-click="vm.downVote(share._id)" class="downvote" title="downvote">a</button>
+    <button ng-click="vm.unVote(share._id)" class="unvote" title="remove vote">d</button>
+    <button class="flagger" title="flag post for moderation">c</button>
+    <a><button class="commenter" title="comment on this share">e</button></a>
   </li>
 </ul>

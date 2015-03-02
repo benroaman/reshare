@@ -124,3 +124,101 @@ button {
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important; }
+
+body {
+  background: #f0f0f0; }
+
+.share-title {
+  display: block;
+  font-size: 2em;
+  color: dodgerblue;
+  text-decoration: none;
+  margin-bottom: .35em; }
+
+.share-listing {
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 15px 10px 5px 10px;
+  margin-top: 5px; }
+
+.share-description, .score, .share-time {
+  margin-bottom: .3em; }
+
+.share-creator, .score, .comments {
+  margin-right: .75em;
+  font-size: .75em; }
+
+.share-time {
+  font-size: .65em; }
+
+.upvote, .downvote, .unvote, .flagger, .commenter {
+  font-family: 'untitled-font-1';
+  border-radius: 5px;
+  font-size: 1.2em;
+  height: 1.2em;
+  width: 1.2em;
+  text-align: center;
+  padding: .07em 0 0 0;
+  cursor: pointer;
+  background: none;
+  -webkit-transition: all .1s; }
+
+.upvote {
+  color: olivedrab;
+  border: 2px solid olivedrab; }
+
+.upvote:hover {
+  background: olivedrab;
+  color: white; }
+
+.downvote {
+  color: orange;
+  border: 2px solid orange; }
+
+.downvote:hover {
+  background: orange;
+  color: white; }
+
+.unvote {
+  color: slategrey;
+  border: 2px solid slategrey; }
+
+.unvote:hover {
+  background: slategrey;
+  color: white; }
+
+.flagger {
+  color: tomato;
+  border: 2px solid tomato; }
+
+.flagger:hover {
+  background: tomato;
+  color: white; }
+
+.commenter {
+  color: black;
+  border: 2px solid black; }
+
+.commenter:hover {
+  color: white;
+  background: black; }
+
+.shares-category-link {
+  margin-right: 5em; }
+
+.new-share-title, .new-share-url, .new-share-description {
+  display: block;
+  margin-bottom: 1em;
+  width: 40em; }
+
+.new-share-description {
+  height: 10em;
+  resize: none; }
+
+.new-share-submit {
+  display: block; }
+
+button {
+  margin-right: .25em; }
+
+button:focus {
+  outline: none; }

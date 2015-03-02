@@ -1,9 +1,20 @@
 // The root module for our Angular application
 var app = angular.module('app', ['ngRoute']);
 
+
 app.controller('MainNavCtrl',
-  ['$location', 'StringUtil', function($location, StringUtil) {
+  ['serviceService', '$location', 'StringUtil', function(serviceService, $location, StringUtil) {
     var self = this;
+
+    // self.loggedIn = true;
+
+    // try {
+    //   serviceService.get('/api/users/me');
+    //   alert('fuck');
+    // } catch(err) {
+    //   self.loggedIn = false;
+    //   alert('success');
+    // }
 
     self.isActive = function (path) {
       // The default route is a special case.
@@ -13,6 +24,10 @@ app.controller('MainNavCtrl',
 
       return StringUtil.startsWith($location.path(), path);
     };
+    //
+    // self.toggleLoggedIn = function () {
+    //   self.loggedIn = !self.loggedIn;
+    // }
   }]);
 
 app.factory('Share', function() {
@@ -65,17 +80,14 @@ app.config(['$routeProvider', function($routeProvider) {
 
   self.upVote = function(id) {
     shareService.upVote(id);
-    alert('upvote!');
   }
 
   self.downVote = function(id) {
     shareService.downVote(id);
-    alert('downvote!');
   }
 
   self.unVote = function(id) {
     shareService.unVote(id);
-    alert('unvote!');
   }
 
 }]);
@@ -99,7 +111,7 @@ app.config(['$routeProvider', function($routeProvider) {
     var share = Share(self.newShare);
 
     shareService.addShare(share).then(function () {
-      $location.url('#/shares/latest');
+      $location.path('/shares/latest');
     });
   }
 
@@ -123,13 +135,11 @@ app.config(['$routeProvider', function($routeProvider) {
 
 }])
 .controller('SharesPopCtrl', ['resources', 'shareService', function (resources, shareService) {
-  // TODO: load these via AJAX
   var self = this;
   self.shares = resources;
 
   self.upVote = function(id) {
     shareService.upVote(id);
-    self.shares = shareService.list();
   }
 
   self.downVote = function(id) {
@@ -141,16 +151,6 @@ app.config(['$routeProvider', function($routeProvider) {
   }
 }]);
 
-// A little string utility... no biggie
-app.factory('StringUtil', function() {
-  return {
-    startsWith: function (str, subStr) {
-      str = str || '';
-      return str.slice(0, subStr.length) === subStr;
-    }
-  };
-});
-
 app.config(['$routeProvider', function($routeProvider) {
   var routeDefinition = {
     templateUrl: 'users/user.html',
@@ -160,14 +160,36 @@ app.config(['$routeProvider', function($routeProvider) {
       user: ['$route', 'usersService', function ($route, usersService) {
         var routeParams = $route.current.params;
         return usersService.getByUserId(routeParams.userid);
-      }]
+      }],
+      resources: ['shareService', function (shareService) {
+        return shareService.list();
+      }],
     }
   };
 
   $routeProvider.when('/users/:userid', routeDefinition);
 }])
-.controller('UserCtrl', ['user', function (user) {
-  this.user = user;
+.controller('UserCtrl', ['serviceService', '$http', 'resources', 'user', function (serviceService, $http, resources, user) {
+  var self = this;
+  self.user = user;
+
+  var newArr = []
+
+  for (var i = 0; i < resources.length; ++i) {
+    if (resources[i].userId === this.user.userId) {
+      newArr.push(resources[i]);
+    }
+  }
+
+  self.shares = newArr;
+
+  self.deleteShare = function(share) {
+    var index = self.shares.indexOf(share);
+    self.shares.splice(index, 1);
+    var url = '/api/res/' + share._id;
+    return serviceService.processAjaxPromise($http.delete(url));
+  }
+
 }]);
 
 app.factory('User', function () {
@@ -221,29 +243,42 @@ app.config(['$routeProvider', function($routeProvider) {
   };
 }]);
 
-app.factory('shareService', ['$http', '$q', '$log', function($http, $q, $log) {
-  // My $http promise then and catch always
-  // does the same thing, so I'll put the
-  // processing of it here. What you probably
-  // want to do instead is create a convenience object
-  // that makes $http calls for you in a standard
-  // way, handling post, put, delete, etc
-  function get(url) {
-    return processAjaxPromise($http.get(url));
-  }
+app.factory('serviceService', ['$http', '$q', '$log', function($http, $q, $log) {
 
-  function processAjaxPromise(p) {
-    return p.then(function (result) {
-      return result.data;
-    })
-    .catch(function (error) {
-      $log.log(error);
-    });
-  }
+  return {
+    get: function (url) {
+      return this.processAjaxPromise($http.get(url));
+    },
+
+    processAjaxPromise: function(p) {
+      return p.then(function (result) {
+        return result.data;
+      })
+      .catch(function (error) {
+        $log.log(error);
+      });
+    }
+
+  };
+
+}]);
+
+// A little string utility... no biggie
+app.factory('StringUtil', function() {
+  return {
+    startsWith: function (str, subStr) {
+      str = str || '';
+      return str.slice(0, subStr.length) === subStr;
+    }
+  };
+});
+
+
+app.factory('shareService', ['serviceService', '$http', '$q', '$log', function(serviceService, $http, $q, $log) {
 
   return {
     list: function () {
-      return get('/api/res');
+      return serviceService.get('/api/res');
     },
 
     getById: function (resId) {
@@ -251,53 +286,35 @@ app.factory('shareService', ['$http', '$q', '$log', function($http, $q, $log) {
         throw new Error('getById requires a resource id');
       }
 
-      return get('/api/res/' + resId);
+      return serviceService.get('/api/res/' + resId);
     },
 
     addShare: function (res) {
-      return processAjaxPromise($http.post('/api/res', res));
+      return serviceService.processAjaxPromise($http.post('/api/res', res));
     },
 
     upVote: function (resId) {
       var url = 'api/res/' + resId + '/votes';
-      return processAjaxPromise($http.post(url, { vote: 1 }));
+      return serviceService.processAjaxPromise($http.post(url, { vote: 1 }));
     },
 
     downVote: function (resId) {
       var url = 'api/res/' + resId + '/votes';
-      return processAjaxPromise($http.post(url, { vote: -1 }));
+      return serviceService.processAjaxPromise($http.post(url, { vote: -1 }));
     },
 
     unVote: function (resId) {
       var url = 'api/res/' + resId + '/votes';
-      return processAjaxPromise($http.post(url, { vote: 0 }));
+      return serviceService.processAjaxPromise($http.post(url, { vote: 0 }));
     }
   };
 }]);
 
-app.factory('usersService', ['$http', '$q', '$log', function($http, $q, $log) {
-  // My $http promise then and catch always
-  // does the same thing, so I'll put the
-  // processing of it here. What you probably
-  // want to do instead is create a convenience object
-  // that makes $http calls for you in a standard
-  // way, handling post, put, delete, etc
-  function get(url) {
-    return processAjaxPromise($http.get(url));
-  }
-
-  function processAjaxPromise(p) {
-    return p.then(function (result) {
-      return result.data;
-    })
-    .catch(function (error) {
-      $log.log(error);
-    });
-  }
+app.factory('usersService', ['serviceService', '$http', '$q', '$log', function(serviceService, $http, $q, $log) {
 
   return {
     list: function () {
-      return get('/api/users');
+      return serviceService.get('/api/users');
     },
 
     getByUserId: function (userId) {
@@ -305,11 +322,11 @@ app.factory('usersService', ['$http', '$q', '$log', function($http, $q, $log) {
         throw new Error('getByUserId requires a user id');
       }
 
-      return get('/api/users/' + userId);
+      return serviceService.get('/api/users/' + userId);
     },
 
     addUser: function (user) {
-      return processAjaxPromise($http.post('/api/users', user));
+      return serviceService.processAjaxPromise($http.post('/api/users', user));
     }
   };
 }]);

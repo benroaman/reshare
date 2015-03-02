@@ -17,7 +17,7 @@ app.config(['$routeProvider', function($routeProvider) {
     var share = Share(self.newShare);
 
     shareService.addShare(share).then(function () {
-      $location.url('#/shares/latest');
+      $location.path('/shares/latest');
     });
   }
 

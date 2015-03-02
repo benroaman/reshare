@@ -16,13 +16,11 @@ app.config(['$routeProvider', function($routeProvider) {
 
 }])
 .controller('SharesPopCtrl', ['resources', 'shareService', function (resources, shareService) {
-  // TODO: load these via AJAX
   var self = this;
   self.shares = resources;
 
   self.upVote = function(id) {
     shareService.upVote(id);
-    self.shares = shareService.list();
   }
 
   self.downVote = function(id) {
