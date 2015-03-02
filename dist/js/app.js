@@ -2,6 +2,34 @@
 var app = angular.module('app', ['ngRoute']);
 
 
+app.controller('MainNavCtrl',
+  ['serviceService', '$location', 'StringUtil', function(serviceService, $location, StringUtil) {
+    var self = this;
+
+    // self.loggedIn = true;
+
+    // try {
+    //   serviceService.get('/api/users/me');
+    //   alert('fuck');
+    // } catch(err) {
+    //   self.loggedIn = false;
+    //   alert('success');
+    // }
+
+    self.isActive = function (path) {
+      // The default route is a special case.
+      if (path === '/') {
+        return $location.path() === '/';
+      }
+
+      return StringUtil.startsWith($location.path(), path);
+    };
+    //
+    // self.toggleLoggedIn = function () {
+    //   self.loggedIn = !self.loggedIn;
+    // }
+  }]);
+
 app.factory('Share', function() {
   return function(spec) {
     date = new Date();
@@ -123,33 +151,35 @@ app.config(['$routeProvider', function($routeProvider) {
   }
 }]);
 
-app.controller('MainNavCtrl',
-  ['serviceService', '$location', 'StringUtil', function(serviceService, $location, StringUtil) {
-    var self = this;
+app.factory('serviceService', ['$http', '$q', '$log', function($http, $q, $log) {
 
-    // self.loggedIn = true;
+  return {
+    get: function (url) {
+      return this.processAjaxPromise($http.get(url));
+    },
 
-    // try {
-    //   serviceService.get('/api/users/me');
-    //   alert('fuck');
-    // } catch(err) {
-    //   self.loggedIn = false;
-    //   alert('success');
-    // }
+    processAjaxPromise: function(p) {
+      return p.then(function (result) {
+        return result.data;
+      })
+      .catch(function (error) {
+        $log.log(error);
+      });
+    }
 
-    self.isActive = function (path) {
-      // The default route is a special case.
-      if (path === '/') {
-        return $location.path() === '/';
-      }
+  };
 
-      return StringUtil.startsWith($location.path(), path);
-    };
-    //
-    // self.toggleLoggedIn = function () {
-    //   self.loggedIn = !self.loggedIn;
-    // }
-  }]);
+}]);
+
+// A little string utility... no biggie
+app.factory('StringUtil', function() {
+  return {
+    startsWith: function (str, subStr) {
+      str = str || '';
+      return str.slice(0, subStr.length) === subStr;
+    }
+  };
+});
 
 app.config(['$routeProvider', function($routeProvider) {
   var routeDefinition = {
@@ -242,36 +272,6 @@ app.config(['$routeProvider', function($routeProvider) {
     self.newUser = User();
   };
 }]);
-
-app.factory('serviceService', ['$http', '$q', '$log', function($http, $q, $log) {
-
-  return {
-    get: function (url) {
-      return this.processAjaxPromise($http.get(url));
-    },
-
-    processAjaxPromise: function(p) {
-      return p.then(function (result) {
-        return result.data;
-      })
-      .catch(function (error) {
-        $log.log(error);
-      });
-    }
-
-  };
-
-}]);
-
-// A little string utility... no biggie
-app.factory('StringUtil', function() {
-  return {
-    startsWith: function (str, subStr) {
-      str = str || '';
-      return str.slice(0, subStr.length) === subStr;
-    }
-  };
-});
 
 
 app.factory('shareService', ['serviceService', '$http', '$q', '$log', function(serviceService, $http, $q, $log) {
