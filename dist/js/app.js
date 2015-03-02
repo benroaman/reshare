@@ -202,36 +202,6 @@ app.config(['$routeProvider', function($routeProvider) {
   }
 }]);
 
-app.factory('serviceService', ['$http', '$q', '$log', function($http, $q, $log) {
-
-  return {
-    get: function (url) {
-      return this.processAjaxPromise($http.get(url));
-    },
-
-    processAjaxPromise: function(p) {
-      return p.then(function (result) {
-        return result.data;
-      })
-      .catch(function (error) {
-        $log.log(error);
-      });
-    }
-
-  };
-
-}]);
-
-// A little string utility... no biggie
-app.factory('StringUtil', function() {
-  return {
-    startsWith: function (str, subStr) {
-      str = str || '';
-      return str.slice(0, subStr.length) === subStr;
-    }
-  };
-});
-
 app.config(['$routeProvider', function($routeProvider) {
   var routeDefinition = {
     templateUrl: 'users/user.html',
@@ -323,6 +293,36 @@ app.config(['$routeProvider', function($routeProvider) {
     self.newUser = User();
   };
 }]);
+
+app.factory('serviceService', ['$http', '$q', '$log', function($http, $q, $log) {
+
+  return {
+    get: function (url) {
+      return this.processAjaxPromise($http.get(url));
+    },
+
+    processAjaxPromise: function(p) {
+      return p.then(function (result) {
+        return result.data;
+      })
+      .catch(function (error) {
+        $log.log(error);
+      });
+    }
+
+  };
+
+}]);
+
+// A little string utility... no biggie
+app.factory('StringUtil', function() {
+  return {
+    startsWith: function (str, subStr) {
+      str = str || '';
+      return str.slice(0, subStr.length) === subStr;
+    }
+  };
+});
 
 app.factory('commentService', ['serviceService', '$http', '$q', '$log', function(serviceService, $http, $q, $log) {
 
