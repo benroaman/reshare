@@ -1,0 +1,31 @@
+<div class="share-listing">
+  <a class="share-title" target="_blank" href="{{vm.share.url}}">{{vm.share.title}}</a>
+  <p class="share-description">{{vm.share.description}}</p>
+  <span class="share-creator">posted by: <a href="#/users/{{vm.share.userId}}">{{vm.share.userId}}</a></span>
+  <span class="score">rating: {{vm.share.upvotes - vm.share.downvotes}}</span>
+  <span class="comments">comments: <a href="#/shares/{{vm.share._id}}/comments">TODO: show number of comments</a></span>
+  <p class="share-time">{{vm.share.timeString}}</p>
+</div>
+
+<form ng-submit="vm.addComment()" class="new-comment">
+  <textarea ng-model="vm.newComment.text" class="new-comment-text" required placeholder="your comment goes here, dummy"></textarea>
+  <button class="new-comment-submit">add share</button>
+</form>
+
+<ul class="comments-list">
+
+  <li ng-repeat="comment in vm.comments | orderBy: 'created.getTime()': reverse=true">
+
+    <span class="comment-creator">posted by: <a href="#/users/{{comment.userId}}">{{comment.userId}}</a></span>
+
+    <p class="comment-text">
+      {{comment.text}}
+    </p>
+
+    <p class="comment-time">
+      {{comment.created.toString()}}
+    </p>
+
+  </li>
+
+</ul>

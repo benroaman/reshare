@@ -1,20 +1,73 @@
 // The root module for our Angular application
 var app = angular.module('app', ['ngRoute']);
 
+app.factory('Comment', function() {
+  return function(spec) {
+    spec = spec || {};
+    return {
+      userId: spec.userId,
+      text: spec.text,
+      subjectId: spec.subjectId,
+      created: spec.created
+    };
+  };
+});
+
+app.config(['$routeProvider', function($routeProvider) {
+  var routeDefinition = {
+    templateUrl: 'comments/comments.html',
+    controller: 'CommentsCtrl',
+    controllerAs: 'vm',
+    resolve: {
+      comments: ['commentService', '$route', function(commentService, $route) {
+        return commentService.list($route.current.params.shareid); // TODO: make this a thing
+      }],
+      share: ['commentService', '$route', function(commentService, $route) {
+        return commentService.share($route.current.params.shareid); // TODO: make this a thing
+      }]
+    }
+  };
+
+  $routeProvider.when('/shares/:shareid/comments', routeDefinition);
+
+}])
+.controller('CommentsCtrl', ['$location', '$route', 'Comment', 'comments', 'share', 'commentService', function ($location, $route, Comment, comments, share, commentService) {
+
+  var self = this;
+
+  self.newComment = Comment();
+
+  self.routeParams = $route.current.params;
+
+  self.share = share;
+
+  self.comments = comments;
+
+  self.addComment = function() {
+    var comment = Comment(self.newComment);
+
+    commentService.addComment(comment, self.routeParams.shareid).then(function () {
+      var url = '/shares/' + self.routeParams.shareid + '/comments';
+      $location.path(url);
+    });
+  }
+
+}])
 
 app.controller('MainNavCtrl',
-  ['serviceService', '$location', 'StringUtil', function(serviceService, $location, StringUtil) {
+  ['serviceService', '$location', '$log', 'StringUtil', function(serviceService, $location, $log, StringUtil) {
     var self = this;
 
-    // self.loggedIn = true;
+    serviceService.get('/api/users/me')
+      .then(function(data) {
+        self.currentUser = data;
+      }).catch(function(err) {
+        self.currentUser = undefined;
+        $log.log(err);
+      });
 
-    // try {
-    //   serviceService.get('/api/users/me');
-    //   alert('fuck');
-    // } catch(err) {
-    //   self.loggedIn = false;
-    //   alert('success');
-    // }
+    self.currentUser = serviceService.get('/api/users/me');
+
 
     self.isActive = function (path) {
       // The default route is a special case.
@@ -24,10 +77,7 @@ app.controller('MainNavCtrl',
 
       return StringUtil.startsWith($location.path(), path);
     };
-    //
-    // self.toggleLoggedIn = function () {
-    //   self.loggedIn = !self.loggedIn;
-    // }
+
   }]);
 
 app.factory('Share', function() {
@@ -113,6 +163,7 @@ app.config(['$routeProvider', function($routeProvider) {
     shareService.addShare(share).then(function () {
       $location.path('/shares/latest');
     });
+    self.newShare = Share();
   }
 
 }]);
@@ -273,6 +324,25 @@ app.config(['$routeProvider', function($routeProvider) {
   };
 }]);
 
+app.factory('commentService', ['serviceService', '$http', '$q', '$log', function(serviceService, $http, $q, $log) {
+
+  return {
+    list: function(shareid) {
+      var url = '/api/res/' + shareid + '/comments';
+      return serviceService.get(url);
+    },
+
+    share: function(shareid) {
+      var url = 'api/res/' + shareid;
+      return serviceService.get(url);
+    },
+
+    addComment: function(comment, resId) {
+      var api = 'api/res/' + resId + '/comments';
+      return serviceService.processAjaxPromise($http.post(api, comment));
+    }
+  };
+}]);
 
 app.factory('shareService', ['serviceService', '$http', '$q', '$log', function(serviceService, $http, $q, $log) {
 

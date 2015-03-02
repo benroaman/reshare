@@ -1,16 +1,17 @@
 app.controller('MainNavCtrl',
-  ['serviceService', '$location', 'StringUtil', function(serviceService, $location, StringUtil) {
+  ['serviceService', '$location', '$log', 'StringUtil', function(serviceService, $location, $log, StringUtil) {
     var self = this;
 
-    // self.loggedIn = true;
+    serviceService.get('/api/users/me')
+      .then(function(data) {
+        self.currentUser = data;
+      }).catch(function(err) {
+        self.currentUser = undefined;
+        $log.log(err);
+      });
 
-    // try {
-    //   serviceService.get('/api/users/me');
-    //   alert('fuck');
-    // } catch(err) {
-    //   self.loggedIn = false;
-    //   alert('success');
-    // }
+    self.currentUser = serviceService.get('/api/users/me');
+
 
     self.isActive = function (path) {
       // The default route is a special case.
@@ -20,8 +21,5 @@ app.controller('MainNavCtrl',
 
       return StringUtil.startsWith($location.path(), path);
     };
-    //
-    // self.toggleLoggedIn = function () {
-    //   self.loggedIn = !self.loggedIn;
-    // }
+
   }]);

@@ -10,7 +10,7 @@
     <p class="share-description">{{share.description}}</p>
     <span class="share-creator">posted by: <a href="#/users/{{share.userId}}">{{share.userId}}</a></span>
     <span class="score">rating: {{share.upvotes - share.downvotes}}</span>
-    <span class="comments">comments: <a>TODO: show number of comments</a></span>
+    <span class="comments">comments: <a href="#/shares/{{share._id}}/comments">TODO: show number of comments</a></span>
     <p class="share-time">{{share.timeString}}</p>
     <button ng-click="vm.upVote(share._id)" class="upvote" title="upvote">b</button>
     <button ng-click="vm.downVote(share._id)" class="downvote" title="downvote">a</button>
