@@ -8,7 +8,7 @@ app.factory('Comment', function() {
       userId: spec.userId,
       text: spec.text,
       subjectId: spec.subjectId,
-      created: spec.created
+      created: spec.created || new Date()
     };
   };
 });
@@ -46,7 +46,8 @@ app.config(['$routeProvider', function($routeProvider) {
   self.addComment = function() {
     var comment = Comment(self.newComment);
 
-    commentService.addComment(comment, self.routeParams.shareid).then(function () {
+    commentService.addComment(comment, self.routeParams.shareid).then(function (data) {
+      self.comments.push(data);
       var url = '/shares/' + self.routeParams.shareid + '/comments';
       $location.path(url);
     });

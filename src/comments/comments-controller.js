@@ -31,7 +31,8 @@ app.config(['$routeProvider', function($routeProvider) {
   self.addComment = function() {
     var comment = Comment(self.newComment);
 
-    commentService.addComment(comment, self.routeParams.shareid).then(function () {
+    commentService.addComment(comment, self.routeParams.shareid).then(function (data) {
+      self.comments.push(data);
       var url = '/shares/' + self.routeParams.shareid + '/comments';
       $location.path(url);
     });

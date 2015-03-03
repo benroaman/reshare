@@ -14,7 +14,7 @@
 
 <ul class="comments-list">
 
-  <li ng-repeat="comment in vm.comments | orderBy: 'created.getTime()': reverse=true">
+  <li ng-repeat="comment in vm.comments | orderBy: 'created': reverse=true">
 
     <span class="comment-creator">posted by: <a href="#/users/{{comment.userId}}">{{comment.userId}}</a></span>
 
@@ -23,7 +23,7 @@
     </p>
 
     <p class="comment-time">
-      {{comment.created.toString()}}
+      {{comment.created.toString().slice(0, 10)}}
     </p>
 
   </li>

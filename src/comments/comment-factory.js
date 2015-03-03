@@ -5,7 +5,7 @@ app.factory('Comment', function() {
       userId: spec.userId,
       text: spec.text,
       subjectId: spec.subjectId,
-      created: spec.created
+      created: spec.created || new Date()
     };
   };
 });
